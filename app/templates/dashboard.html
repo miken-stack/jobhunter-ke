@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>
+    Welcome, {{ current_user.name }}
+</h1>
+
+<div class="stats">
+
+    <div>
+        <strong>{{ total }}</strong>
+        <span>Applications</span>
+    </div>
+
+    <div>
+        <strong>{{ interviews }}</strong>
+        <span>Interviews</span>
+    </div>
+
+    <div>
+        <strong>{{ offers }}</strong>
+        <span>Offers</span>
+    </div>
+
+    <div>
+        <strong>{{ rejected }}</strong>
+        <span>Rejected</span>
+    </div>
+
+</div>
+
+
+<section>
+
+    <h2>
+        Add Application
+    </h2>
+
+    <form
+        method="POST"
+        action="/applications/add"
+    >
+
+        <input
+            name="company"
+            placeholder="Company"
+            required
+        >
+
+        <input
+            name="position"
+            placeholder="Position"
+            required
+        >
+
+        <input
+            name="location"
+            placeholder="Location"
+        >
+
+        <select name="status">
+
+            <option>Applied</option>
+
+            <option>Interview</option>
+
+            <option>Offer</option>
+
+            <option>Rejected</option>
+
+        </select>
+
+        <textarea
+            name="notes"
+            placeholder="Notes"
+        ></textarea>
+
+        <button>
+            Add Application
+        </button>
+
+    </form>
+
+</section>
+
+
+<section>
+
+    <h2>
+        Your Applications
+    </h2>
+
+    {% for application in applications %}
+
+        <article class="application">
+
+            <h3>
+                {{ application.position }}
+            </h3>
+
+            <p>
+                {{ application.company }}
+            </p>
+
+            <p>
+                {{ application.location }}
+            </p>
+
+            <strong>
+                {{ application.status }}
+            </strong>
+
+            <a
+                href="/applications/{{ application.id }}/delete"
+            >
+                Delete
+            </a>
+
+        </article>
+
+    {% else %}
+
+        <p>
+            You haven't added any applications yet.
+        </p>
+
+    {% endfor %}
+
+</section>
+
+{% endblock %}
