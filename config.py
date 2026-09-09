@@ -1,30 +1,24 @@
 """
 Application configuration.
 
-Configuration is selected via the FLASK_CONFIG environment variable and
-read from the environment (see .env.example). Never commit real secrets —
-the defaults below are only safe for local development.
+Configuration is selected via the FLASK_CONFIG environment variable.
+Production requires a PostgreSQL DATABASE_URL.
 """
+
 import os
 from datetime import timedelta
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
-    """Base config with sane, secure-by-default settings."""
+    """Base configuration."""
 
-    SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-this")
-
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL", "sqlite:///" + os.path.join(basedir, "instance", "jobhunter.db")
+    SECRET_KEY = os.getenv(
+        "SECRET_KEY",
+        "dev-secret-change-this"
     )
-    # Some hosts hand out postgres:// URLs, which SQLAlchemy 1.4+/2.x
-    # no longer accepts directly — normalize to postgresql://.
-    if SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
-        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace(
-            "postgres://", "postgresql://", 1
-        )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -33,27 +27,56 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
 
-    # CSRF (Flask-WTF)
+    # CSRF
     WTF_CSRF_ENABLED = True
 
     APPLICATIONS_PER_PAGE = 10
 
 
 class DevelopmentConfig(Config):
+    """Local development configuration."""
+
     DEBUG = True
+
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "DATABASE_URL",
+        "sqlite:///" + os.path.join(basedir, "instance", "jobhunter.db")
+    )
 
 
 class TestingConfig(Config):
+    """Automated testing configuration."""
+
     TESTING = True
     DEBUG = True
+
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-    WTF_CSRF_ENABLED = False  # simplifies posting forms directly in tests
+
+    WTF_CSRF_ENABLED = False
     SECRET_KEY = "test-secret"
 
 
 class ProductionConfig(Config):
+    """Production configuration."""
+
     DEBUG = False
     SESSION_COOKIE_SECURE = True
+
+    DATABASE_URL = os.getenv("DATABASE_URL")
+
+    if not DATABASE_URL:
+        raise RuntimeError(
+            "DATABASE_URL environment variable is required in production."
+        )
+
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace(
+            "postgres://",
+            "postgresql://",
+            1
+        )
+
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL
 
 
 config = {

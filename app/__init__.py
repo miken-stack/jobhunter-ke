@@ -18,13 +18,15 @@ csrf = CSRFProtect()
 
 def create_app(config_name=None):
     """Application factory."""
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__)
 
     config_name = config_name or os.getenv("FLASK_CONFIG", "default")
     app.config.from_object(config[config_name])
 
-    os.makedirs(app.instance_path, exist_ok=True)
-
+    # Serverless platforms (e.g. Vercel) mount everything except /tmp
+    # read-only, so creating the instance folder can fail there. It's only
+    # needed for the default local SQLite path, so don't let it crash boot.
+    
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
