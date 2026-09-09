@@ -1,132 +1,113 @@
 {% extends "base.html" %}
+{% block title %}Dashboard &mdash; JobHunter KE{% endblock %}
 
 {% block content %}
+<div class="dashboard-head">
+    <h1>Welcome, {{ current_user.name.split(' ')[0] }}</h1>
+    <a href="{{ url_for('main.add_application') }}" class="button">Add application</a>
+</div>
 
-<h1>
-    Welcome, {{ current_user.name }}
-</h1>
-
-<div class="stats">
-
-    <div>
+<section class="stats" aria-label="Application summary">
+    <div class="stat">
         <strong>{{ total }}</strong>
         <span>Applications</span>
     </div>
-
-    <div>
+    <div class="stat">
         <strong>{{ interviews }}</strong>
         <span>Interviews</span>
     </div>
-
-    <div>
+    <div class="stat">
         <strong>{{ offers }}</strong>
         <span>Offers</span>
     </div>
-
-    <div>
+    <div class="stat">
         <strong>{{ rejected }}</strong>
         <span>Rejected</span>
     </div>
-
-</div>
-
-
-<section>
-
-    <h2>
-        Add Application
-    </h2>
-
-    <form
-        method="POST"
-        action="/applications/add"
-    >
-
-        <input
-            name="company"
-            placeholder="Company"
-            required
-        >
-
-        <input
-            name="position"
-            placeholder="Position"
-            required
-        >
-
-        <input
-            name="location"
-            placeholder="Location"
-        >
-
-        <select name="status">
-
-            <option>Applied</option>
-
-            <option>Interview</option>
-
-            <option>Offer</option>
-
-            <option>Rejected</option>
-
-        </select>
-
-        <textarea
-            name="notes"
-            placeholder="Notes"
-        ></textarea>
-
-        <button>
-            Add Application
-        </button>
-
-    </form>
-
 </section>
 
+<section class="applications-section">
+    <div class="section-head">
+        <h2>Your applications</h2>
 
-<section>
-
-    <h2>
-        Your Applications
-    </h2>
-
-    {% for application in applications %}
-
-        <article class="application">
-
-            <h3>
-                {{ application.position }}
-            </h3>
-
-            <p>
-                {{ application.company }}
-            </p>
-
-            <p>
-                {{ application.location }}
-            </p>
-
-            <strong>
-                {{ application.status }}
-            </strong>
-
-            <a
-                href="/applications/{{ application.id }}/delete"
+        <form method="GET" class="filter-bar" role="search">
+            <input
+                type="search"
+                name="q"
+                value="{{ search }}"
+                placeholder="Search company or role"
+                aria-label="Search applications"
             >
-                Delete
-            </a>
 
-        </article>
+            <select name="status" aria-label="Filter by status">
+                <option value="" {{ "selected" if not status_filter }}>All statuses</option>
+                {% for s in statuses %}
+                    <option value="{{ s }}" {{ "selected" if status_filter == s }}>{{ s }}</option>
+                {% endfor %}
+            </select>
 
+            <select name="sort" aria-label="Sort applications">
+                <option value="newest" {{ "selected" if sort == "newest" }}>Newest first</option>
+                <option value="oldest" {{ "selected" if sort == "oldest" }}>Oldest first</option>
+                <option value="company" {{ "selected" if sort == "company" }}>Company A&ndash;Z</option>
+            </select>
+
+            <button type="submit" class="button button-small button-ghost">Apply</button>
+        </form>
+    </div>
+
+    {% if applications %}
+        <ul class="application-list">
+            {% for application in applications %}
+                <li class="application status-border-{{ application.status | lower }}">
+                    <div class="application-main">
+                        <h3>{{ application.position }}</h3>
+                        <p class="application-company">
+                            {{ application.company }}{% if application.location %} &middot; {{ application.location }}{% endif %}
+                        </p>
+                        {% if application.notes %}
+                            <p class="application-notes">{{ application.notes }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="application-meta">
+                        <span class="status-pill status-{{ application.status | lower }}">{{ application.status }}</span>
+                        <span class="application-date">Applied {{ application.application_date.strftime("%d %b %Y") }}</span>
+
+                        <div class="application-actions">
+                            <a href="{{ url_for('main.edit_application', id=application.id) }}">Edit</a>
+                            <form method="POST" action="{{ url_for('main.delete_application', id=application.id) }}" class="inline-form" data-confirm="Delete this application? This can't be undone.">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="link-button link-button-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% if pagination.pages > 1 %}
+            <nav class="pagination" aria-label="Pagination">
+                {% if pagination.has_prev %}
+                    <a href="{{ url_for('main.dashboard', page=pagination.prev_num, q=search, status=status_filter, sort=sort) }}">&larr; Newer</a>
+                {% endif %}
+                <span>Page {{ pagination.page }} of {{ pagination.pages }}</span>
+                {% if pagination.has_next %}
+                    <a href="{{ url_for('main.dashboard', page=pagination.next_num, q=search, status=status_filter, sort=sort) }}">Older &rarr;</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+
+    {% elif search or status_filter %}
+        <div class="empty-state">
+            <p>No applications match that search.</p>
+            <a href="{{ url_for('main.dashboard') }}">Clear filters</a>
+        </div>
     {% else %}
-
-        <p>
-            You haven't added any applications yet.
-        </p>
-
-    {% endfor %}
-
+        <div class="empty-state">
+            <p>You haven't logged any applications yet.</p>
+            <a href="{{ url_for('main.add_application') }}" class="button">Add your first application</a>
+        </div>
+    {% endif %}
 </section>
-
 {% endblock %}

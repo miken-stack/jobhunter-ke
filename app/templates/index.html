@@ -1,25 +1,56 @@
 {% extends "base.html" %}
 
 {% block content %}
-
 <section class="hero">
+    <div class="hero-copy">
+        <h1>Your job search, kept in one ledger.</h1>
+        <p>
+            Applications scattered across email threads and WhatsApp notes are easy to lose
+            track of. JobHunter KE gives you a single place to log every application, follow
+            up on interviews, and see your progress at a glance.
+        </p>
+        <div class="hero-actions">
+            <a class="button" href="{{ url_for('main.register') }}">Start tracking, it's free</a>
+            <a class="button button-ghost" href="{{ url_for('main.login') }}">I already have an account</a>
+        </div>
+    </div>
 
-    <h1>
-        Take control of your job search.
-    </h1>
-
-    <p>
-        Track applications, interviews and offers
-        from one simple dashboard.
-    </p>
-
-    <a
-        class="button"
-        href="/register"
-    >
-        Start Tracking Jobs
-    </a>
-
+    <div class="hero-ledger" aria-hidden="true">
+        <div class="ledger-row">
+            <span class="ledger-status status-applied"></span>
+            <span class="ledger-text">Safaricom &mdash; Product Analyst</span>
+            <span class="ledger-date">Applied</span>
+        </div>
+        <div class="ledger-row">
+            <span class="ledger-status status-interview"></span>
+            <span class="ledger-text">Equity Bank &mdash; Data Engineer</span>
+            <span class="ledger-date">Interview</span>
+        </div>
+        <div class="ledger-row">
+            <span class="ledger-status status-offer"></span>
+            <span class="ledger-text">Twiga Foods &mdash; Ops Lead</span>
+            <span class="ledger-date">Offer</span>
+        </div>
+        <div class="ledger-row">
+            <span class="ledger-status status-rejected"></span>
+            <span class="ledger-text">Jumia &mdash; Backend Engineer</span>
+            <span class="ledger-date">Rejected</span>
+        </div>
+    </div>
 </section>
 
+<section class="features">
+    <div class="feature">
+        <h2>Log it once</h2>
+        <p>Company, role, location and notes &mdash; captured in under a minute so nothing slips through.</p>
+    </div>
+    <div class="feature">
+        <h2>Track the stage</h2>
+        <p>Move applications from Applied to Interview to Offer, and know exactly where you stand.</p>
+    </div>
+    <div class="feature">
+        <h2>See the whole picture</h2>
+        <p>A running count of applications, interviews, offers and rejections, updated as you go.</p>
+    </div>
+</section>
 {% endblock %}

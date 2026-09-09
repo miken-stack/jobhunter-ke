@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Page not found &mdash; JobHunter KE{% endblock %}
+{% block content %}
+<div class="error-page">
+    <h1>404</h1>
+    <p>That page doesn't exist, or it's moved.</p>
+    <a class="button" href="{{ url_for('main.index') }}">Back to home</a>
+</div>
+{% endblock %}

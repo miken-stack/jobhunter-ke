@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Not allowed &mdash; JobHunter KE{% endblock %}
+{% block content %}
+<div class="error-page">
+    <h1>403</h1>
+    <p>You don't have permission to view that.</p>
+    <a class="button" href="{{ url_for('main.index') }}">Back to home</a>
+</div>
+{% endblock %}

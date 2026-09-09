@@ -1,39 +1,45 @@
 {% extends "base.html" %}
+{% block title %}Create account &mdash; JobHunter KE{% endblock %}
 
 {% block content %}
+<div class="form-page">
+    <div class="form-container">
+        <h1>Create your account</h1>
+        <p class="form-subtitle">Takes less than a minute.</p>
 
-<div class="form-container">
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
 
-    <h1>Create your account</h1>
+            <div class="field">
+                {{ form.name.label }}
+                {{ form.name(placeholder="Wanjiru Kamau", autocomplete="name") }}
+                {% for error in form.name.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            </div>
 
-    <form method="POST">
+            <div class="field">
+                {{ form.email.label }}
+                {{ form.email(placeholder="you@example.com", autocomplete="email") }}
+                {% for error in form.email.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            </div>
 
-        <input
-            name="name"
-            placeholder="Full name"
-            required
-        >
+            <div class="field">
+                {{ form.password.label }}
+                {{ form.password(placeholder="At least 8 characters", autocomplete="new-password") }}
+                {% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            </div>
 
-        <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            required
-        >
+            <div class="field">
+                {{ form.confirm_password.label }}
+                {{ form.confirm_password(placeholder="Repeat your password", autocomplete="new-password") }}
+                {% for error in form.confirm_password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            </div>
 
-        <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-        >
+            <button type="submit" class="button button-full">Create account</button>
+        </form>
 
-        <button>
-            Create Account
-        </button>
-
-    </form>
-
+        <p class="form-footer">
+            Already have an account? <a href="{{ url_for('main.login') }}">Log in</a>
+        </p>
+    </div>
 </div>
-
 {% endblock %}

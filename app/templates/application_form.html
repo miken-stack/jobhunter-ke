@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit application" if mode == "edit" else "Add application" }} &mdash; JobHunter KE{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-container form-container-wide">
+        <h1>{{ "Edit application" if mode == "edit" else "Add an application" }}</h1>
+        <p class="form-subtitle">
+            {% if mode == "edit" %}
+                Update the details for {{ application.position }} at {{ application.company }}.
+            {% else %}
+                A minute now saves you the guesswork later.
+            {% endif %}
+        </p>
+
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="field-row">
+                <div class="field">
+                    {{ form.company.label }}
+                    {{ form.company(placeholder="Safaricom PLC") }}
+                    {% for error in form.company.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+
+                <div class="field">
+                    {{ form.position.label }}
+                    {{ form.position(placeholder="Product Analyst") }}
+                    {% for error in form.position.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    {{ form.location.label }}
+                    {{ form.location(placeholder="Nairobi, Kenya") }}
+                    {% for error in form.location.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+
+                <div class="field">
+                    {{ form.status.label }}
+                    {{ form.status() }}
+                    {% for error in form.status.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+            </div>
+
+            <div class="field">
+                {{ form.interview_date.label }}
+                {{ form.interview_date() }}
+                {% for error in form.interview_date.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            </div>
+
+            <div class="field">
+                {{ form.notes.label }}
+                {{ form.notes(placeholder="Recruiter contact, salary discussed, next steps\u2026", rows="4") }}
+                {% for error in form.notes.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ url_for('main.dashboard') }}" class="button button-ghost">Cancel</a>
+                <button type="submit" class="button">{{ "Save changes" if mode == "edit" else "Add application" }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

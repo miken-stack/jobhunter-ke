@@ -1,58 +1,78 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+import logging
 import os
+import sys
+
+from flask import Flask, render_template
+from flask_login import LoginManager
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import CSRFProtect
+
+from config import config
 
 db = SQLAlchemy()
 login_manager = LoginManager()
+migrate = Migrate()
+csrf = CSRFProtect()
 
 
-def create_app():
-    app = Flask(__name__)
+def create_app(config_name=None):
+    """Application factory."""
+    app = Flask(__name__, instance_relative_config=True)
 
-    app.config["SECRET_KEY"] = os.getenv(
-        "SECRET_KEY",
-        "dev-secret-change-this"
-    )
+    config_name = config_name or os.getenv("FLASK_CONFIG", "default")
+    app.config.from_object(config[config_name])
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-        "DATABASE_URL",
-        "sqlite:///jobhunter.db"
-    )
-
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    os.makedirs(app.instance_path, exist_ok=True)
 
     db.init_app(app)
     login_manager.init_app(app)
+    migrate.init_app(app, db)
+    csrf.init_app(app)
 
     login_manager.login_view = "main.login"
+    login_manager.login_message = "Please log in to access that page."
+    login_manager.login_message_category = "info"
 
     from app.routes import main
     app.register_blueprint(main)
 
-def create_app():
-    app = Flask(__name__)
+    register_error_handlers(app)
+    configure_logging(app)
 
-    app.config["SECRET_KEY"] = os.getenv(
-        "SECRET_KEY",
-        "dev-secret-change-this"
-    )
+    @app.context_processor
+    def inject_globals():
+        from datetime import datetime, timezone
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-        "DATABASE_URL",
-        "sqlite:///jobhunter.db"
-    )
-
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-    db.init_app(app)
-    login_manager.init_app(app)
-
-    login_manager.login_view = "main.login"
-
-    from app.routes import main
-    app.register_blueprint(main)
+        return {"now_year": datetime.now(timezone.utc).year}
 
     return app
 
-  
+
+def register_error_handlers(app):
+    @app.errorhandler(404)
+    def not_found(error):
+        return render_template("errors/404.html"), 404
+
+    @app.errorhandler(403)
+    def forbidden(error):
+        return render_template("errors/403.html"), 403
+
+    @app.errorhandler(500)
+    def server_error(error):
+        db.session.rollback()
+        return render_template("errors/500.html"), 500
+
+
+def configure_logging(app):
+    if app.debug or app.testing:
+        return
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter(
+        "[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
+    )
+    handler.setFormatter(formatter)
+    app.logger.addHandler(handler)
+    app.logger.setLevel(logging.INFO)

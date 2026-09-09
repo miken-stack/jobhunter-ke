@@ -1,33 +1,33 @@
 {% extends "base.html" %}
+{% block title %}Log in &mdash; JobHunter KE{% endblock %}
 
 {% block content %}
+<div class="form-page">
+    <div class="form-container">
+        <h1>Welcome back</h1>
+        <p class="form-subtitle">Log in to see your applications.</p>
 
-<div class="form-container">
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
 
-    <h1>Welcome back</h1>
+            <div class="field">
+                {{ form.email.label }}
+                {{ form.email(placeholder="you@example.com", autocomplete="email") }}
+                {% for error in form.email.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            </div>
 
-    <form method="POST">
+            <div class="field">
+                {{ form.password.label }}
+                {{ form.password(placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", autocomplete="current-password") }}
+                {% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            </div>
 
-        <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            required
-        >
+            <button type="submit" class="button button-full">Log in</button>
+        </form>
 
-        <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-        >
-
-        <button>
-            Login
-        </button>
-
-    </form>
-
+        <p class="form-footer">
+            New here? <a href="{{ url_for('main.register') }}">Create an account</a>
+        </p>
+    </div>
 </div>
-
 {% endblock %}
