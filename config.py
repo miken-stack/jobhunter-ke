@@ -21,6 +21,12 @@ class Config:
     )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+    "pool_pre_ping": True,
+    "pool_recycle": 300,
+    "pool_size": 1,
+    "max_overflow": 2,
+}
 
     # Sessions / cookies
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
